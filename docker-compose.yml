@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+
+  prometheus:
+    image: prom/prometheus:v2.35.0
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    ports:
+      - "9090:9090"
+    networks:
+      - grafana-prometheus-network
+    command: --config.file=/etc/prometheus/prometheus.yml --log.level=warn
+
+  grafana:
+    image: grafana/grafana:8.5.3
+    depends_on:
+      prometheus:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning
+    environment:
+      GF_LOG_LEVEL: warn
+    networks:
+      - grafana-prometheus-network
+
+
+networks:
+  grafana-prometheus-network:
